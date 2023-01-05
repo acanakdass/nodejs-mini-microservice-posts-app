@@ -17,17 +17,27 @@ app.post('/events', (req, res) => {
     const { type, data } = req.body
     console.log("Event received.. : " + type)
     switch (type) {
-        case 'PostCreated':
-            var { id, title } = data
+        case 'PostCreated': {
+            let { id, title } = data
             posts.push({ id, title, comments: [] })
             console.log('posts')
             console.log(posts)
             break;
-        case 'CommentCreated':
-            var { id, content, postId } = data
-            let postToUpdate = posts.find(x=>x.id==postId)
-            postToUpdate.comments.push({ id, content })
+        }
+        case 'CommentCreated': {
+            let { id, content, postId, status } = data
+            let postToUpdate = posts.find(x => x.id == postId)
+            postToUpdate.comments.push({ id, content, status })
             break;
+        }
+        case 'CommentUpdated': {
+            let { id, postId, content, status } = data
+            let postOfComments = posts.find(x => x.id == postId)
+            let comment = postOfComments.comments.find(x => x.id == id)
+            comment.status = status
+            comment.content = content
+            break;
+        }
         default:
             break;
     }

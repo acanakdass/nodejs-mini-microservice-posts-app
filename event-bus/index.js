@@ -4,6 +4,7 @@ const app = express()
 require('dotenv').config()
 const port = process.env.PORT || 5000
 const bodyParser = require('body-parser');
+const { QUERY_SERVICE_URL, COMMENTS_SERVICE_URL, MODERATION_SERVICE_URL, POSTS_SERVICE_URL } = require('../EventEndpoints')
 app.use(bodyParser.json())
 // !important! 
 // you need to install the following libraries |express|[dotenv > if required]
@@ -12,14 +13,37 @@ app.use(bodyParser.json())
 app.get('/', (req, res) => {
     res.send('hello from simple server :)')
 })
-app.post('/events', (req, res) => {
+app.post('/events', async (req, res) => {
     const event = req.body;
     console.log(event)
-    axios.post('http://localhost:4000/events',event).then(res=>console.log("event sent to Service Posts..")).catch(err=>console.log(err.message))
-    axios.post('http://localhost:4001/events',event).then(res=>console.log("event sent to Service Comments.. ")).catch(err=>console.log(err.message))
-    axios.post('http://localhost:4002/events',event).then(res=>console.log("event sent to Service Query.. ")).catch(err=>console.log(err.message))
-    // axios.post('http://localhost:4002/events',event)
+    switch (event.type) {
+        case "CommentCreated":
+            sendEvent(QUERY_SERVICE_URL,"Query",event)
+            sendEvent(MODERATION_SERVICE_URL,"Moderation",event)
+            break;
+        case "PostCreated":
+            sendEvent(QUERY_SERVICE_URL,"Query",event)
+            break;
+        case "CommentModerated":
+            sendEvent(COMMENTS_SERVICE_URL,"Comments",event)
+            break;
+        case "CommentUpdated":
+            sendEvent(QUERY_SERVICE_URL,"Query",event)
+            break;
+        default:
+            sendEvent(POSTS_SERVICE_URL,"Posts",event)
+            sendEvent(COMMENTS_SERVICE_URL,"Comments",event)
+            sendEvent(QUERY_SERVICE_URL,"Query",event)
+            sendEvent(MODERATION_SERVICE_URL,"Moderation",event)
+            break;
+    }
     res.send({status:'OK'})
 })
 
-app.listen(port, () => console.log('> Server is up and running on port : ' + port))
+
+const sendEvent=async (url,serviceName,event)=>{
+    await axios.post(url,event).then(res=>console.log(`event sent to Service ${serviceName}..`)).catch(err=>console.log(err.message))
+}
+app.listen(port, () => {
+    console.log('> Server is up and running on port : ' + port)
+})
