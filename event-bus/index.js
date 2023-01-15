@@ -4,18 +4,17 @@ const app = express()
 require('dotenv').config()
 const port = process.env.PORT || 5000
 const bodyParser = require('body-parser');
-const { QUERY_SERVICE_URL, COMMENTS_SERVICE_URL, MODERATION_SERVICE_URL, POSTS_SERVICE_URL } = require('../EventEndpoints')
+const { QUERY_SERVICE_URL, COMMENTS_SERVICE_URL, MODERATION_SERVICE_URL, POSTS_SERVICE_URL } = require('./EventEndpoints')
 app.use(bodyParser.json())
 // !important! 
 // you need to install the following libraries |express|[dotenv > if required]
 // or run this command >> npm i express dotenv 
+const events =[]
 
-app.get('/', (req, res) => {
-    res.send('hello from simple server :)')
+app.get('/events', (req, res) => {
+    res.send(events)
 })
-app.post('/events', async (req, res) => {
-    const event = req.body;
-    console.log(event)
+const handleEvent = (event)=>{
     switch (event.type) {
         case "CommentCreated":
             sendEvent(QUERY_SERVICE_URL,"Query",event)
@@ -37,6 +36,13 @@ app.post('/events', async (req, res) => {
             sendEvent(MODERATION_SERVICE_URL,"Moderation",event)
             break;
     }
+}
+app.post('/events', async (req, res) => {
+    const event = req.body;
+    events.push(event)
+    console.log(event)
+    handleEvent(event)
+    
     res.send({status:'OK'})
 })
 

@@ -6,12 +6,13 @@ const port = process.env.PORT || 5000
 const app = express()
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { EVENT_BUS_SERVICE_URL } = require('./EventEndpoints');
 app.use(cors())
 app.use(bodyParser.json())
 
 const postsRecords = [];
 
-app.listen(port, () => console.log('> Server is up and running on port : ' + port))
+app.listen(port, () => console.log('> Server is up and running on port : ' + port +' :)))'))
 app.get('/posts', (req, res) => {
     res.send(postsRecords)
 })
@@ -25,7 +26,7 @@ app.post('/posts',async (req, res) => {
     let id = crypto.randomBytes(4).toString('hex');
     const { title } = req.body
     postsRecords.push({ id, title })
-    await axios.post('http://localhost:4005/events', {
+    await axios.post(EVENT_BUS_SERVICE_URL, {
         type: 'PostCreated',
         data: {
             id,

@@ -4,6 +4,8 @@ require('dotenv').config()
 const port = process.env.PORT || 5000
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { default: axios } = require('axios');
+const { EVENT_BUS_SERVICE_URL } = require('./EventEndpoints');
 app.use(cors())
 app.use(bodyParser.json())
 // !important! 
@@ -13,15 +15,14 @@ const posts = []
 app.get('/posts', (req, res) => {
     res.send(posts)
 })
-app.post('/events', (req, res) => {
-    const { type, data } = req.body
+const handleEvents = (event) => {
+    const { type, data } = event
     console.log("Event received.. : " + type)
+
     switch (type) {
         case 'PostCreated': {
             let { id, title } = data
             posts.push({ id, title, comments: [] })
-            console.log('posts')
-            console.log(posts)
             break;
         }
         case 'CommentCreated': {
@@ -41,6 +42,19 @@ app.post('/events', (req, res) => {
         default:
             break;
     }
+}
+app.post('/events', (req, res) => {
+    handleEvents(req.body)
     res.send("Ok:)")
 })
-app.listen(port, () => console.log('> Server is up and running on port : ' + port))
+app.listen(port,async () => {
+    console.log('> Server is up and running on port : ' + port)
+    await axios.get(EVENT_BUS_SERVICE_URL)
+    .then(res=>{
+        for (let event of res.data) {
+            handleEvents(event)
+        }
+    }).catch(err=>{
+        console.log(err.message)
+    })
+})

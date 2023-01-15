@@ -8,7 +8,7 @@ const { default: axios } = require('axios')
 
 app.use(bodyParser.json())
 const cors = require('cors');
-const { EVENT_BUS_SERVICE_URL } = require('../EventEndpoints');
+const { EVENT_BUS_SERVICE_URL } = require('./EventEndpoints');
 app.use(cors())
 const commentsByPostIdRecords = [];
 
