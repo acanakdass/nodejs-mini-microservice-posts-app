@@ -2,7 +2,6 @@ const express = require('express')
 const app = express()
 const { default: axios } = require('axios')
 const bodyParser = require('body-parser')
-const { EVENT_BUS_SERVICE_URL } = require('./EventEndpoints')
 require('dotenv').config()
 const port = process.env.PORT || 5000
 
@@ -10,7 +9,7 @@ app.use(bodyParser.json())
 
 app.post('/events', async (req, res) => {
     const { type, data } = req.body
-    setTimeout(async ()=>{
+    setTimeout(async () => {
         switch (type) {
             case "CommentCreated":
                 data.status = data.content.includes('fword') ? 'rejected' : 'approved'
@@ -18,14 +17,16 @@ app.post('/events', async (req, res) => {
                     type: 'CommentModerated',
                     data
                 }
-                await axios.post(EVENT_BUS_SERVICE_URL, eventToSend).then(res => console.log("event sent to Service Posts..")).catch(err => console.log(err.message))
+                await axios.post(process.env.EVENT_BUS_SERVICE_URL, eventToSend).then(res => {
+                    console.log("event sent to Service Posts..")
+                }).catch(err => console.log(err.message))
                 break;
-    
+
             default:
                 break;
         }
         res.send("Ok:)")
-    },5000)
+    }, 5000)
 })
 
 

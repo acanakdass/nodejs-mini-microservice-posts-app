@@ -5,7 +5,6 @@ const port = process.env.PORT || 5000
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { default: axios } = require('axios');
-const { EVENT_BUS_SERVICE_URL } = require('./EventEndpoints');
 app.use(cors())
 app.use(bodyParser.json())
 // !important! 
@@ -49,7 +48,7 @@ app.post('/events', (req, res) => {
 })
 app.listen(port,async () => {
     console.log('> Server is up and running on port : ' + port)
-    await axios.get(EVENT_BUS_SERVICE_URL)
+    await axios.get(process.env.EVENT_BUS_SERVICE_URL)
     .then(res=>{
         for (let event of res.data) {
             handleEvents(event)

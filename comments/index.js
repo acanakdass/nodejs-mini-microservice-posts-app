@@ -8,7 +8,7 @@ const { default: axios } = require('axios')
 
 app.use(bodyParser.json())
 const cors = require('cors');
-const { EVENT_BUS_SERVICE_URL } = require('./EventEndpoints');
+
 app.use(cors())
 const commentsByPostIdRecords = [];
 
@@ -28,7 +28,7 @@ app.post('/events',async (req, res) => {
                 type: 'CommentUpdated',
                 data
             }
-            sendEventAsync(EVENT_BUS_SERVICE_URL,'Event Bus',eventToSend)
+            sendEventAsync(process.env.EVENT_BUS_SERVICE_URL,'Event Bus',eventToSend)
             break;
         }
         default:
@@ -46,7 +46,7 @@ app.post('/posts/:id/comments', async (req, res) => {
     comments.push({ id: id, content, status: 'pending' })
     commentsByPostIdRecords[postId] = comments
 
-    await axios.post('http://localhost:4005/events', {
+    await axios.post(process.env.EVENT_BUS_SERVICE_URL, {
         type: 'CommentCreated',
         data: { id, content, postId, status: 'pending' }
     }).then(res => console.log("CommentCreated event sent..")).catch(err => console.log(err.message))

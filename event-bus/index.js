@@ -4,11 +4,8 @@ const app = express()
 require('dotenv').config()
 const port = process.env.PORT || 5000
 const bodyParser = require('body-parser');
-const { QUERY_SERVICE_URL, COMMENTS_SERVICE_URL, MODERATION_SERVICE_URL, POSTS_SERVICE_URL } = require('./EventEndpoints')
 app.use(bodyParser.json())
-// !important! 
-// you need to install the following libraries |express|[dotenv > if required]
-// or run this command >> npm i express dotenv 
+
 const events =[]
 
 app.get('/events', (req, res) => {
@@ -17,23 +14,23 @@ app.get('/events', (req, res) => {
 const handleEvent = (event)=>{
     switch (event.type) {
         case "CommentCreated":
-            sendEvent(QUERY_SERVICE_URL,"Query",event)
-            sendEvent(MODERATION_SERVICE_URL,"Moderation",event)
+            sendEvent(process.env.QUERY_SERVICE_URL,"Query",event)
+            sendEvent(process.env.MODERATION_SERVICE_URL,"Moderation",event)
             break;
         case "PostCreated":
-            sendEvent(QUERY_SERVICE_URL,"Query",event)
+            sendEvent(process.env.QUERY_SERVICE_URL,"Query",event)
             break;
         case "CommentModerated":
-            sendEvent(COMMENTS_SERVICE_URL,"Comments",event)
+            sendEvent(process.env.COMMENTS_SERVICE_URL,"Comments",event)
             break;
         case "CommentUpdated":
-            sendEvent(QUERY_SERVICE_URL,"Query",event)
+            sendEvent(process.env.QUERY_SERVICE_URL,"Query",event)
             break;
         default:
-            sendEvent(POSTS_SERVICE_URL,"Posts",event)
-            sendEvent(COMMENTS_SERVICE_URL,"Comments",event)
-            sendEvent(QUERY_SERVICE_URL,"Query",event)
-            sendEvent(MODERATION_SERVICE_URL,"Moderation",event)
+            sendEvent(process.env.POSTS_SERVICE_URL,"Posts",event)
+            sendEvent(process.env.COMMENTS_SERVICE_URL,"Comments",event)
+            sendEvent(process.env.QUERY_SERVICE_URL,"Query",event)
+            sendEvent(process.env.MODERATION_SERVICE_URL,"Moderation",event)
             break;
     }
 }
